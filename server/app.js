@@ -5,7 +5,8 @@ const fs = require('fs')
 const PORT = 3000
 const db = {}
 const app = express()
-const CAMINHO = 'server/data/jogadores.json'
+const CAMINHO_JOGADORES = 'server/data/jogadores.json'
+const CAMINHO_JOGOS = 'server/data/jogosPorJogador.json'
 // EXERCÍCIO 1
 // configurar para servir os arquivos estáticos da pasta "client"
 // dica: 1 linha de código
@@ -27,11 +28,19 @@ app.set('views', 'server/views')
 // carregar "banco de dados" (data/jogadores.json e data/jogosPorJogador.json)
 // você pode colocar o conteúdo dos arquivos json no objeto "db" logo abaixo
 // dica: 1-4 linhas de código (você deve usar o módulo de filesystem (fs))
-fs.readFile(CAMINHO, (err, data) => {
+fs.readFile(CAMINHO_JOGADORES, (err, data) => {
     if (err) {
         throw err
     }
     Object.assign(db, JSON.parse(data))
+})
+
+fs.readFile(CAMINHO_JOGOS, (err, data) => {
+    if (err) {
+        throw err
+    }
+    let teste = JSON.parse(data)
+    Object.assign(db, teste)
 })
 
 // definir rota para página inicial --> renderizar a view index, usando os
@@ -47,3 +56,17 @@ app.get('/', (req, res) => {
 // jogador, usando os dados do banco de dados "data/jogadores.json" e
 // "data/jogosPorJogador.json", assim como alguns campos calculados
 // dica: o handler desta função pode chegar a ter ~15 linhas de código
+app.get('/jogador/:steamid', (req, res) => {
+    let jogador = Object.assign({},db.players.find(element => element.steamid == req.params.steamid))
+    jogador.totalJogos = db[req.params.steamid].games.length
+    jogador.totalNaoJogados  = db[req.params.steamid].games.filter(game => game.playtime_forever == 0).length
+
+    const cincoJogos = db[req.params.steamid].games.sort((a, b) => (a.playtime_forever > b.playtime_forever) ? -1 : 1).slice(0, 5).map( item => {
+        let dump = Object.assign({}, item)
+        dump.playtime_forever = Math.floor(item.playtime_forever/60)
+        return dump
+    })
+    
+    const player = {jogador: jogador, jogoMaisJogado: {id:req.params.steamid, j:cincoJogos[0]}, jogos: cincoJogos}
+    res.render('jogador.hbs', player)
+})
