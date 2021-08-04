@@ -1,0 +1,22 @@
+{
+  "name": "geiser-aula-web",
+  "version": "1.0.0",
+  "description": "atividade aula de web",
+  "main": "server/app.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\u001b[2~https://github.com/Galantine/cefet-web-geiser.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
